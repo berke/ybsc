@@ -1,7 +1,3 @@
-use std::{
-    fs::File,
-    io::BufReader
-};
 use anyhow::{
     bail,
     Result
@@ -16,10 +12,7 @@ fn main()->Result<()> {
 	bail!("Specify input");
     }
 
-    let fd = File::open(&args[1])?;
-    let mut br = BufReader::new(fd);
-    let ybsc = Ybsc::read_from(&mut br)?;
-
+    let ybsc = Ybsc::load(&args[1])?;
     for star in &ybsc.stars {
 	println!("{:8} {:9.3} {:+9.3} {}{} {:+4.2} {:+9.3e} {:+9.3e}",
 		 star.xno,
