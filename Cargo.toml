@@ -1,6 +1,6 @@
 [package]
 name = "ybsc"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Berke DURAK <bd@exhrd.fr>"]
 license-file = "LICENSE.txt"
