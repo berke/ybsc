@@ -241,7 +241,7 @@ impl Ybsc {
 	    if hdr.starn < 0 {
 		(Equinox::J2000,-hdr.starn as usize)
 	    } else {
-		(Equinox::B1950,-hdr.starn as usize)
+		(Equinox::B1950,hdr.starn as usize)
 	    };
 	let mut stars = Vec::with_capacity(nstar);
 	let have_proper_motion = hdr.mprop;
