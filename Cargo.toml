@@ -5,7 +5,7 @@ edition = "2021"
 authors = ["Berke DURAK <bd@exhrd.fr>"]
 license-file = "LICENSE.txt"
 readme = "README.md"
-description = "Simple, no-nonsence Yale Bright Star Catalog binary file parser"
+description = "Simple, no-nonsense Yale Bright Star Catalog binary file parser"
 repository = "https://github.com/berke/ybsc"
 
 [dependencies]
