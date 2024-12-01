@@ -3,9 +3,10 @@ name = "ybsc"
 version = "0.1.0"
 edition = "2021"
 authors = ["Berke DURAK <bd@exhrd.fr>"]
+license-file = "LICENSE.txt"
+readme = "README.md"
 description = "Simple, no-nonsence Yale Bright Star Catalog binary file parser"
 repository = "https://github.com/berke/ybsc"
 
 [dependencies]
 anyhow = { version = "^1.0" }
-pico-args = { version = "0.5" }

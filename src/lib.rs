@@ -4,19 +4,31 @@ use anyhow::{
     Error,
     Result
 };
-use std::io::Read;
+use std::{
+    fs::File,
+    io::{
+	BufReader,
+	Read
+    },
+    path::Path
+};
 
 #[derive(Copy,Clone,Debug)]
-pub struct RawHeader {
-    pub star0:i32,
-    pub star1:i32,
-    pub starn:i32,
-    pub stnum:i32,
-    pub mprop:bool,
-    pub nmag:i32,
-    pub nbent:i32
+struct RawHeader {
+    #[allow(dead_code)]
+    star0:i32,
+    #[allow(dead_code)]
+    star1:i32,
+    starn:i32,
+    stnum:i32,
+    mprop:bool,
+    #[allow(dead_code)]
+    nmag:i32,
+    nbent:i32
 }
 
+/// Generic entry (star) type, the differences between the in-memory
+/// and the on-disk representation being defined by the type parameters
 #[derive(Copy,Clone,Debug)]
 pub struct Entry<T,U> {
     /// Catalog number
@@ -41,27 +53,47 @@ pub struct Entry<T,U> {
     pub xdpm:f32,
 }
 
+/// Equinox-epoch identifier
 #[derive(Copy,Clone,Debug)]
 pub enum Equinox {
+    /// Besselian
     B1950,
+
+    /// Julian
     J2000
 }
 
+/// Enumerates the kind of star IDs a file contains
 #[derive(Copy,Clone,Debug)]
 pub enum IdType {
+    /// No star identification numbers are present in this file
     None,
+
+    /// See a separate catalog file for getting the identification numbers
     SeeCatalog,
+
+    /// This file includes star ID numbers
     Included
 }
 
+/// An entry in a YBSC file
 pub type Star = Entry<u32,f32>;
-pub type RawEntry = Entry<f32,i16>;
 
+type RawEntry = Entry<f32,i16>;
+
+/// Memory representation of a Yale Bright Star Catalog (YBSC) file
 #[derive(Clone,Debug)]
 pub struct Ybsc {
+    /// Which equinox-epoch the data refers to
     pub equinox:Equinox,
+
+    /// Which kind of star ID, if any, this catalog contains
     pub id_type:IdType,
+
+    /// If the proper motion values are valid
     pub have_proper_motion:bool,
+
+    /// The entries of the catalog
     pub stars:Vec<Star>
 }
 
@@ -184,7 +216,21 @@ impl TryFrom<RawEntry> for Star {
     }
 }
 
+impl TryFrom<i32> for IdType {
+    type Error = Error;
+    
+    fn try_from(stnum:i32)->Result<Self> {
+	Ok(match stnum {
+	    0 => IdType::None,
+	    1 => IdType::SeeCatalog,
+	    2 => IdType::Included,
+	    _ => bail!("Invalid stnum value {}",stnum)
+	})
+    }
+}
+
 impl Ybsc {
+    /// Decode a catalog file from a reader
     pub fn read_from<R:Read>(mut r:R)->Result<Self> {
 	let hdr = RawHeader::read_from(&mut r)?;
 	if hdr.nbent != 32 {
@@ -199,12 +245,7 @@ impl Ybsc {
 	    };
 	let mut stars = Vec::with_capacity(nstar);
 	let have_proper_motion = hdr.mprop;
-	let id_type = match hdr.stnum {
-	    0 => IdType::None,
-	    1 => IdType::SeeCatalog,
-	    2 => IdType::Included,
-	    _ => bail!("Invalid stnum value {}",hdr.stnum)
-	};
+	let id_type : IdType = hdr.stnum.try_into()?;
 	for _ in 0..nstar {
 	    let entry = RawEntry::read_from(&mut r)?;
 	    if entry.valid() {
@@ -218,5 +259,12 @@ impl Ybsc {
 	    id_type,
 	    stars
 	})
+    }
+
+    /// Convenience function for loading a file
+    pub fn load<P:AsRef<Path>>(path:P)->Result<Self> {
+	let fd = File::open(path)?;
+	let br = BufReader::new(fd);
+	Ybsc::read_from(br)
     }
 }
