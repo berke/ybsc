@@ -4,6 +4,11 @@ use anyhow::{
     Error,
     Result
 };
+#[cfg(feature="serde")]
+use serde::{
+    Deserialize,
+    Serialize
+};
 use std::{
     fs::File,
     io::{
@@ -29,6 +34,7 @@ struct RawHeader {
 
 /// Generic entry (star) type, the differences between the in-memory
 /// and the on-disk representation being defined by the type parameters
+#[cfg_attr(feature="serde",derive(Deserialize,Serialize))]
 #[derive(Copy,Clone,Debug)]
 pub struct Entry<T,U> {
     /// Catalog number
@@ -54,6 +60,7 @@ pub struct Entry<T,U> {
 }
 
 /// Equinox-epoch identifier
+#[cfg_attr(feature="serde",derive(Deserialize,Serialize))]
 #[derive(Copy,Clone,Debug)]
 pub enum Equinox {
     /// Besselian
@@ -64,6 +71,7 @@ pub enum Equinox {
 }
 
 /// Enumerates the kind of star IDs a file contains
+#[cfg_attr(feature="serde",derive(Deserialize,Serialize))]
 #[derive(Copy,Clone,Debug)]
 pub enum IdType {
     /// No star identification numbers are present in this file
@@ -82,6 +90,7 @@ pub type Star = Entry<u32,f32>;
 type RawEntry = Entry<f32,i16>;
 
 /// Memory representation of a Yale Bright Star Catalog (YBSC) file
+#[cfg_attr(feature="serde",derive(Deserialize,Serialize))]
 #[derive(Clone,Debug)]
 pub struct Ybsc {
     /// Which equinox-epoch the data refers to
