@@ -159,6 +159,12 @@ impl RawHeader {
     }
 }
 
+impl<T,U> Entry<T,U> {
+    pub fn valid(&self)->bool {
+	self.is[0] != ' ' || self.is[1] != ' '
+    }
+}
+
 impl RawEntry {
     pub fn read_from<R:Read>(mut r:R)->Result<Self> {
 	let xno = read_f32(&mut r)?;
@@ -179,10 +185,6 @@ impl RawEntry {
 	    xrpm,
 	    xdpm
 	})
-    }
-
-    pub fn valid(&self)->bool {
-	self.is[0] != ' ' || self.is[1] != ' '
     }
 }
 
